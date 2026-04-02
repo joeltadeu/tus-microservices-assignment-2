@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Role {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    /**
-     * Spring Security convention requires the ROLE_ prefix.
-     * Values: ROLE_HEALTHCARE_ADMIN, ROLE_DOCTOR, ROLE_PATIENT
-     */
-    @Column(nullable = false, unique = true)
-    private String name;
+  /**
+   * Spring Security convention requires the ROLE_ prefix. Values: ROLE_HEALTHCARE_ADMIN,
+   * ROLE_DOCTOR, ROLE_PATIENT
+   */
+  @Column(nullable = false, unique = true)
+  private String name;
 }
