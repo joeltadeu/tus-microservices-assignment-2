@@ -8,12 +8,12 @@ import lombok.Data;
 @Data
 public class LoginRequest {
 
-    @NotBlank
-    @Email
-    @Schema(example = "dr.smith@pms.ie")
-    private String email;
+  @NotBlank
+  @Email
+  @Schema(example = "dr.smith@pms.ie")
+  private String email;
 
-    @NotBlank
-    @Schema(example = "Doctor@1234!")
-    private String password;
+  @NotBlank
+  @Schema(example = "Doctor@1234!")
+  private String password;
 }
