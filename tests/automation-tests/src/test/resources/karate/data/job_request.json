@@ -1,7 +1,0 @@
-{
-  "title": "{{title}}",
-  "description": "{{description}}",
-  "minSalary": "{{minSalary}}",
-  "maxSalary": "{{maxSalary}}",
-  "location": "{{city}}, {{country}}"
-}

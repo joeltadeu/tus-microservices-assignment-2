@@ -1,0 +1,24 @@
+{
+  "uri": {
+    "doctor": "/v1/doctors",
+    "patient": "/v1/patients",
+    "appointment": "/appointments",
+    "auth": "/v1/auth/login"
+  },
+  "params": {
+    "doctor": {
+      "firstName": "Karen",
+      "lastName": "Fitzgerald",
+      "email": "karen.fitzgerald@medicalclinic.com"
+    },
+    "patient": {
+      "firstName": "Lucas",
+      "lastName": "Johnson",
+      "email": "lucas.johnson@gmail.com"
+    },
+    "admin": {
+      "email": "admin@pms.ie",
+      "password": "Admin@1234!"
+    }
+  }
+}

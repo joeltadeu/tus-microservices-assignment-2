@@ -1,0 +1,7 @@
+{
+  "title": "Knee Pain Consultation",
+  "type": "CONSULTATION",
+  "startTime": "{{startTime}}",
+  "doctorId": "{{doctorId}}",
+  "description": "Patient is experiencing persistent knee pain after running. Initial consultation to diagnose the issue."
+}

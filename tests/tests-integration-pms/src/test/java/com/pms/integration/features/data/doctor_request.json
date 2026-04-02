@@ -1,0 +1,10 @@
+{
+  "firstName": "{{firstName}}",
+  "lastName": "{{lastName}}",
+  "title": "Dr.",
+  "specialityId": 1,
+  "email": "{{email}}",
+  "phone": "898-538-0178",
+  "department": "Primary Care",
+  "initialPassword": "Doctor@1234!"
+}
