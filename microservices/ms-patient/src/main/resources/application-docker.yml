@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://pms-mariadb:3306/pms-patient?useSSL=false&useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
+
+management:
+  tracing:
+    export:
+      zipkin:
+        endpoint: http://zipkin:9411/api/v2/spans
+
+client:
+  auth:
+    url: http://auth-service:8084

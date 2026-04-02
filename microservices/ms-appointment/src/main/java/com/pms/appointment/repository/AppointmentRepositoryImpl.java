@@ -1,0 +1,137 @@
+package com.pms.appointment.repository;
+
+import com.pms.appointment.model.Appointment;
+import com.pms.models.dto.appointment.AppointmentFilter;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import org.springframework.data.domain.*;
+
+public class AppointmentRepositoryImpl implements AppointmentRepositoryCustom {
+
+  @PersistenceContext private final EntityManager entityManager;
+  private final CriteriaBuilder criteriaBuilder;
+
+  public AppointmentRepositoryImpl(EntityManager entityManager) {
+    this.entityManager = entityManager;
+    this.criteriaBuilder = entityManager.getCriteriaBuilder();
+  }
+
+  @Override
+  public Page<Appointment> findAllWithFilters(Long patientId, AppointmentFilter filter) {
+    CriteriaQuery<Appointment> query = criteriaBuilder.createQuery(Appointment.class);
+    Root<Appointment> root = query.from(Appointment.class);
+
+    // Get predicate for the main query
+    query.where(getPredicate(patientId, filter, root));
+
+    Pageable pageable = getPageable(filter);
+
+    // Add ordering if needed
+    query.orderBy(criteriaBuilder.desc(root.get("createdAt")));
+
+    // Get the result list
+    List<Appointment> result =
+        entityManager
+            .createQuery(query)
+            .setFirstResult((int) pageable.getOffset())
+            .setMaxResults(pageable.getPageSize())
+            .getResultList();
+
+    // Get total count using the filter criteria
+    long total = getRecordsCount(patientId, filter);
+
+    return new PageImpl<>(result, pageable, total);
+  }
+
+  @Override
+  public Page<Appointment> findAllWithFilters(AppointmentFilter filter) {
+    CriteriaQuery<Appointment> query = criteriaBuilder.createQuery(Appointment.class);
+    Root<Appointment> root = query.from(Appointment.class);
+
+    // Get predicate for the main query
+    query.where(getPredicate(filter, root));
+
+    Pageable pageable = getPageable(filter);
+
+    // Add ordering if needed
+    query.orderBy(criteriaBuilder.desc(root.get("createdAt")));
+
+    // Get the result list
+    List<Appointment> result =
+        entityManager
+            .createQuery(query)
+            .setFirstResult((int) pageable.getOffset())
+            .setMaxResults(pageable.getPageSize())
+            .getResultList();
+
+    // Get total count using the filter criteria
+    long total = getRecordsCount(filter);
+
+    return new PageImpl<>(result, pageable, total);
+  }
+
+  private Predicate getPredicate(AppointmentFilter criteria, Root<Appointment> root) {
+    return getPredicate(null, criteria, root);
+  }
+
+  private Predicate getPredicate(
+      Long patientId, AppointmentFilter criteria, Root<Appointment> root) {
+    List<Predicate> predicates = new ArrayList<>();
+
+    if (patientId != null) {
+      predicates.add(criteriaBuilder.equal(root.get("patientId"), patientId));
+    }
+
+    if (Objects.nonNull(criteria.getStartDate())) {
+      LocalDateTime start = criteria.getStartDate().atStartOfDay();
+      predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("startTime"), start));
+    }
+
+    if (Objects.nonNull(criteria.getEndDate())) {
+      LocalDateTime end = criteria.getEndDate().atTime(23, 59, 59, 999999999);
+      predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("endTime"), end));
+    }
+
+    if (Objects.nonNull(criteria.getDoctorId())) {
+      predicates.add(criteriaBuilder.equal(root.get("doctorId"), criteria.getDoctorId()));
+    }
+
+    if (Objects.nonNull(criteria.getStatus())) {
+      predicates.add(criteriaBuilder.equal(root.get("status"), criteria.getStatus()));
+    }
+
+    return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+  }
+
+  private Pageable getPageable(AppointmentFilter page) {
+    Sort sort = Sort.by(page.getSortDirection(), page.getSortBy());
+    return PageRequest.of(page.getPageNumber(), page.getPageSize(), sort);
+  }
+
+  private long getRecordsCount(AppointmentFilter criteria) {
+    return getRecordsCount(null, criteria);
+  }
+
+  private long getRecordsCount(Long patientId, AppointmentFilter criteria) {
+    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+    Root<Appointment> from = countQuery.from(Appointment.class);
+
+    // Create a new predicate specifically for this count query
+    Predicate countPredicate = getPredicate(patientId, criteria, from);
+
+    countQuery.select(criteriaBuilder.count(from));
+    if (countPredicate != null) {
+      countQuery.where(countPredicate);
+    }
+
+    return entityManager.createQuery(countQuery).getSingleResult();
+  }
+}

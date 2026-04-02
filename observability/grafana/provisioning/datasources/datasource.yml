@@ -1,0 +1,78 @@
+# config file version
+apiVersion: 1
+
+# list of datasources that should be deleted from the database
+deleteDatasources:
+  - name: Prometheus
+    orgId: 1
+
+# list of datasources to insert/update depending
+# whats available in the database
+datasources:
+  # <string, required> name of the datasource. Required
+  - uid: prometheus
+    name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    password:
+    user:
+    database:
+    basicAuth: false
+    isDefault: true
+    basicAuthUser:
+    basicAuthPassword:
+    withCredentials:
+    jsonData:
+      graphiteVersion: "1.1"
+      tlsAuth: false
+      tlsAuthWithCACert: false
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: zipkin
+    secureJsonData:
+      tlsCACert: "..."
+      tlsClientCert: "..."
+      tlsClientKey: "..."
+    version: 1
+    editable: true
+
+  - uid: zipkin
+    name: Zipkin
+    type: zipkin
+    access: proxy
+    orgId: 1
+    url: http://zipkin:9411
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    apiVersion: 1
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: 'loki'
+
+  - uid: loki
+    name: Loki
+    orgId: 1
+    type: loki
+    typeName: Loki
+    access: proxy
+    url: http://loki:3100
+    password: ''
+    user: ''
+    database: ''
+    basicAuth: false
+    isDefault: false
+    readOnly: false
+    editable: true
+    jsonData:
+      derivedFields:
+        #              -   datasourceUid: tempo
+        - datasourceUid: zipkin
+          matcherRegex: \[.+,(.+?),
+          name: TraceID
+          url: $${__value.raw}

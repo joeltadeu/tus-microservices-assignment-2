@@ -1,0 +1,660 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": { "limit": 100, "matchAny": false, "tags": [], "type": "dashboard" },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "🔍 Trace Explorer",
+      "type": "row"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "All log lines that share the selected Trace ID across every service. Use the Trace ID dropdown above to correlate a specific request end-to-end.",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Ascending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{app=~\".+\"} | traceID=`$traceID`",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Logs for Trace ID — $traceID",
+      "type": "logs"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 },
+      "id": 101,
+      "title": "📋 Logs by Service",
+      "type": "row"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Live log stream for auth-service. Filter by level using the variable above.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+      "id": 10,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{app=\"auth-service\", level=~\"$level\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "🔐 auth-service logs",
+      "type": "logs"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Live log stream for appointment-service. Filter by level using the variable above.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+      "id": 11,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{app=\"appointment-service\", level=~\"$level\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "📅 appointment-service logs",
+      "type": "logs"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Live log stream for doctor-service.",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "id": 12,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{app=\"doctor-service\", level=~\"$level\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "👨‍⚕️ doctor-service logs",
+      "type": "logs"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Live log stream for patient-service.",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "id": 13,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "{app=\"patient-service\", level=~\"$level\"}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "🏥 patient-service logs",
+      "type": "logs"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 28 },
+      "id": 102,
+      "title": "📊 Log Volume",
+      "type": "row"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Log lines per minute per service. Spikes indicate increased activity or errors.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "gradientMode": "none",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 29 },
+      "id": 20,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (app) (rate({app=~\".+\", level=~\"$level\"}[$__interval]))",
+          "legendFormat": "{{app}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Log rate by service",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "loki", "uid": "loki" },
+      "description": "Error and warning log rate per service. Use this to spot degraded services quickly.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "lineWidth": 1,
+            "showPoints": "never",
+            "stacking": { "group": "A", "mode": "normal" }
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*ERROR.*" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*WARN.*" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 29 },
+      "id": 21,
+      "options": {
+        "legend": { "calcs": ["sum"], "displayMode": "table", "placement": "right" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "loki", "uid": "loki" },
+          "editorMode": "code",
+          "expr": "sum by (app, level) (rate({app=~\".+\", level=~\"ERROR|WARN\"}[$__interval]))",
+          "legendFormat": "{{app}} — {{level}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Error & warning rate by service",
+      "type": "timeseries"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "id": 103,
+      "title": "⚡ Latency — per service",
+      "type": "row"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "HTTP request latency percentiles for appointment-service across all endpoints.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "id": 30,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"appointment\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p99 — {{uri}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"appointment\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p95 — {{uri}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"appointment\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p50 — {{uri}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "📅 appointment-service latency",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "HTTP request latency percentiles for auth-service.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "id": 31,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"auth\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p99 — {{uri}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"auth\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p95 — {{uri}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"auth\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p50 — {{uri}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "🔐 auth-service latency",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "HTTP request latency percentiles for doctor-service.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 45 },
+      "id": 32,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"doctor\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p99 — {{uri}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"doctor\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p95 — {{uri}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"doctor\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p50 — {{uri}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "👨‍⚕️ doctor-service latency",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "HTTP request latency percentiles for patient-service.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "opacity",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" }
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 45 },
+      "id": 33,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"patient\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p99 — {{uri}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{job=\"patient\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p95 — {{uri}}",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"patient\"}[$__rate_interval])) by (le, uri))",
+          "legendFormat": "p50 — {{uri}}",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "🏥 patient-service latency",
+      "type": "timeseries"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 53 },
+      "id": 104,
+      "title": "📈 Request Rate & Errors",
+      "type": "row"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Requests per second for every service broken down by HTTP status code.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "unit": "reqps"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*5\\d\\d.*" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*4\\d\\d.*" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 54 },
+      "id": 40,
+      "options": {
+        "legend": { "calcs": ["mean"], "displayMode": "table", "placement": "right" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "sum by (job, status) (rate(http_server_requests_seconds_count{job=~\"appointment|auth|doctor|patient\"}[$__rate_interval]))",
+          "legendFormat": "{{job}} — {{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Request rate by service & status",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Percentage of 5xx responses per service. Above 1% warrants investigation.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 54 },
+      "id": 41,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "editorMode": "code",
+          "expr": "100 * sum by (job) (rate(http_server_requests_seconds_count{job=~\"appointment|auth|doctor|patient\", status=~\"5..\"}[$__rate_interval])) / sum by (job) (rate(http_server_requests_seconds_count{job=~\"appointment|auth|doctor|patient\"}[$__rate_interval]))",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Error rate % (5xx) by service",
+      "type": "timeseries"
+    }
+
+  ],
+
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": ["pms", "microservices", "logs", "traces"],
+  "templating": {
+    "list": [
+      {
+        "current": { "selected": false, "text": "All", "value": "$__all" },
+        "datasource": { "type": "loki", "uid": "loki" },
+        "definition": "label_values(traceID)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Trace ID",
+        "multi": false,
+        "name": "traceID",
+        "options": [],
+        "query": "label_values(traceID)",
+        "refresh": 2,
+        "regex": "(?!NONE).*",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": { "selected": true, "text": ["INFO", "ERROR", "WARN"], "value": ["INFO", "ERROR", "WARN"] },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Log level",
+        "multi": true,
+        "name": "level",
+        "options": [
+          { "selected": false, "text": "All", "value": "$__all" },
+          { "selected": true, "text": "INFO",  "value": "INFO"  },
+          { "selected": true, "text": "WARN",  "value": "WARN"  },
+          { "selected": true, "text": "ERROR", "value": "ERROR" },
+          { "selected": false, "text": "DEBUG", "value": "DEBUG" }
+        ],
+        "query": "INFO,WARN,ERROR,DEBUG",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "PMS — Logs, Traces & Metrics",
+  "uid": "szVLMe97z",
+  "version": 8,
+  "weekStart": ""
+}

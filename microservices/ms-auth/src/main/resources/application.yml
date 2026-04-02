@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: auth-service
+  datasource:
+    hikari:
+      pool-name: pms-auth-pool
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MariaDBDialect
+        format_sql: true
+    show-sql: false
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+
+server:
+  port: 8084
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
+
+logging:
+  pattern:
+    correlation: "[${spring.application.name:},%X{traceId:-},%X{spanId:-}] "
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: metrics,info,health,prometheus
+  endpoint:
+    metrics:
+      access: read_only
+    prometheus:
+      access: read_only
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram.http.server.requests: true
+      percentiles.http.server.requests: 0.5, 0.9, 0.95, 0.99, 0.999
+      sla.http.server.requests: 500ms, 2000ms
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      zipkin:
+        endpoint: http://localhost:9411/api/v2/spans
+      enabled: true
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  scalar:
+    path: /scalar
+
+pms:
+  jwt:
+    secret: ${JWT_SECRET:change-this-to-a-secure-512-bit-secret-in-production}
+    access-token-expiry-minutes: 15
+    refresh-token-expiry-days: 7

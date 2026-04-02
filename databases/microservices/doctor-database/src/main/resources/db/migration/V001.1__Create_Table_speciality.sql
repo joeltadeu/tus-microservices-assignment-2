@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS `speciality`
+(
+    `id`          INT(11)      NOT NULL AUTO_INCREMENT,
+    `description` VARCHAR(100) NOT NULL UNIQUE,
+    `created_at`  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = latin1;

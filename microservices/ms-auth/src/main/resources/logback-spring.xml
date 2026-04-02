@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <springProperty scope="context" name="appName" source="spring.application.name"/>
+
+    <!-- LOG PATTERN WITH TRACE + SPAN -->
+    <property name="LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [${appName},%X{traceId:-},%X{spanId:-}] [%thread] %logger{36} : %msg%n"/>
+
+    <appender name="PMS_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>http://loki:3100/loki/api/v1/push</url>
+        </http>
+        <format>
+            <label>
+                <pattern>app=${appName},host=${HOSTNAME},traceID=%X{traceId:-NONE},level=%level</pattern>
+                <readMarkers>true</readMarkers>
+            </label>
+            <message>
+                <pattern>${LOG_PATTERN}</pattern>
+            </message>
+        </format>
+    </appender>
+
+    <springProfile name="docker">
+        <root level="INFO">
+            <appender-ref ref="PMS_CONSOLE"/>
+            <appender-ref ref="LOKI"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="!docker">
+        <root level="INFO">
+            <appender-ref ref="PMS_CONSOLE"/>
+        </root>
+    </springProfile>
+
+</configuration>

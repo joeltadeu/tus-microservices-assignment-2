@@ -1,0 +1,192 @@
+services:
+
+  pms-mariadb:
+    restart: always
+    container_name: pms-mariadb
+    image: 'mariadb:12.0'
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_ROOT_HOST: '%'
+    volumes:
+      - ./databases/volumes/sql:/docker-entrypoint-initdb.d
+      - ./databases/scripts/pms-management.sql:/docker-entrypoint-initdb.d/0_init.sql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      timeout: 5s
+      retries: 5
+    networks:
+      - pms-network
+
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - pms-network
+
+  discovery:
+    image: pms/discovery-service
+    container_name: eureka-server
+    build:
+      context: ./infra/infra-discovery-service
+      dockerfile: Dockerfile
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8761/actuator/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pms-network
+
+  # ── API Gateway ─────────────────────────────────────────────────────────────
+
+  gateway:
+    image: pms/api-gateway-service
+    container_name: api-gateway-service
+    build:
+      context: ./infra/infra-api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "9094:9094"
+    depends_on:
+      discovery:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
+    networks:
+      - pms-network
+
+  # ── Microservices ───────────────────────────────────────────────────────────
+
+  auth:
+    image: pms/auth-service
+    container_name: auth-service
+    ports:
+      - "8084:8084"
+    build:
+      context: ./microservices/ms-auth
+      dockerfile: Dockerfile
+    depends_on:
+      pms-mariadb:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
+    networks:
+      - pms-network
+
+  patient:
+    image: pms/patient-service
+    container_name: patient-service
+    ports:
+      - "8081:8081"
+    build:
+      context: ./microservices/ms-patient
+      dockerfile: Dockerfile
+    depends_on:
+      pms-mariadb:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
+    networks:
+      - pms-network
+
+  doctor:
+    image: pms/doctor-service
+    container_name: doctor-service
+    ports:
+      - "8082:8082"
+    build:
+      context: ./microservices/ms-doctor
+      dockerfile: Dockerfile
+    depends_on:
+      pms-mariadb:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
+    networks:
+      - pms-network
+
+  appointment:
+    image: pms/appointment-service
+    container_name: appointment-service
+    ports:
+      - "8083:8083"
+    build:
+      context: ./microservices/ms-appointment
+      dockerfile: Dockerfile
+    depends_on:
+      pms-mariadb:
+        condition: service_healthy
+      discovery:
+        condition: service_healthy
+      doctor:
+        condition: service_started
+      patient:
+        condition: service_started
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
+    networks:
+      - pms-network
+
+  # ── Observability ───────────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - pms-network
+
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - pms-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./observability/grafana/provisioning/:/etc/grafana/provisioning/
+    depends_on:
+      - loki
+      - prometheus
+      - zipkin
+    networks:
+      - pms-network
+
+networks:
+  pms-network:
+    driver: bridge

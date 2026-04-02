@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://pms-mariadb:3306/pms-appointment?useSSL=false&useTimezone=true&serverTimezone=UTC
+    username: root
+    password: root
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka-server:8761/eureka
+
+management:
+  tracing:
+    export:
+      zipkin:
+        endpoint: http://zipkin:9411/api/v2/spans
+
+# Direct HTTP URLs used as fallback; primary routing goes via Eureka/Feign lb://
+client:
+  doctor:
+    url: http://doctor-service:8082
+  patient:
+    url: http://patient-service:8081
