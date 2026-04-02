@@ -49,6 +49,16 @@ public class RouterConfig {
         .build();
   }
 
+  // ── Appointment service — admin only, list all appointments ──────────────
+  @Bean
+  public RouterFunction<ServerResponse> appointmentAdminRoutes() {
+    return route("appointment-service-admin")
+        .route(RequestPredicates.path("/v1/appointments/**"), http())
+        .filter(lb("APPOINTMENT-SERVICE"))
+        .filter(jwtFilter.apply())
+        .build();
+  }
+
   // ── Doctor service ────────────────────────────────────────────────────────
   @Bean
   public RouterFunction<ServerResponse> doctorRoutes() {
