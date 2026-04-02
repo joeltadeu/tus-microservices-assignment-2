@@ -45,6 +45,11 @@ public class DoctorController implements PmsController {
       "hasRole('HEALTHCARE_ADMIN') or "
           + "(hasRole('DOCTOR') and authentication.credentials == #id)";
 
+  private static final String CAN_READ_DOCTOR =
+      "hasRole('HEALTHCARE_ADMIN') or "
+          + "(hasRole('DOCTOR') and authentication.credentials == #id) or "
+          + "hasRole('PATIENT')";
+
   @Operation(
       summary = "Register a Doctor",
       description = "This endpoint is responsible to register a new doctor",
@@ -223,7 +228,7 @@ public class DoctorController implements PmsController {
       })
   @GetMapping("/{id}")
   // Admin sees any; doctor sees only their own record; patients cannot access
-  @PreAuthorize(OWNS_DOCTOR)
+  @PreAuthorize(CAN_READ_DOCTOR)
   public ResponseEntity<DoctorResponse> findById(@PathVariable Long id) {
     log.info("Request for find doctor by id [{}]", id);
     final var doctor = service.findById(id);
