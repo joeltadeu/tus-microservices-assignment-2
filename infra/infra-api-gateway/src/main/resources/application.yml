@@ -1,3 +1,16 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+server:
+  port: 9094
+
 eureka:
   client:
     fetch-registry: true
@@ -6,12 +19,6 @@ eureka:
       defaultZone: http://localhost:8761/eureka
   instance:
     prefer-ip-address: true
-
-info:
-  app:
-    description: API Gateway Service
-    name: api-gateway
-    version: 1.0.0
 
 logging:
   level:
@@ -23,72 +30,28 @@ management:
     health:
       show-details: always
     metrics:
-      enabled: true
+      access: read_only
     prometheus:
-      enabled: true
+      access: read_only
   endpoints:
     web:
       base-path: /actuator
       exposure:
-        include: health, prometheus, metrics
-  zipkin:
-    tracing:
-      endpoint: http://localhost:9411/api/v2/spans
+        include: health,prometheus,metrics
   tracing:
     sampling:
       probability: 1.0
+    export:
+      enabled: true
+      zipkin:
+        endpoint: http://localhost:9411/api/v2/spans
 
-server:
-  port: 9094
+info:
+  app:
+    name: api-gateway
+    description: API Gateway Service
+    version: 1.0.0
 
 pms:
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-512-bit-secret-in-production}
-
-spring:
-  application:
-    name: api-gateway
-  cloud:
-    gateway:
-      discovery:
-        locator:
-          enabled: true
-          lower-case-service-id: true
-      routes:
-        # ── Auth service — login/refresh/logout are public ─────────────────
-        - id: auth-service-public
-          predicates:
-            - Path=/v1/auth/**
-          uri: lb://AUTH-SERVICE
-
-        # ── User management — HEALTHCARE_ADMIN only (JWT required) ─────────
-        - id: auth-service-users
-          predicates:
-            - Path=/v1/users/**
-          uri: lb://AUTH-SERVICE
-          filters:
-            - name: JwtValidation
-
-        # ── Doctor service ─────────────────────────────────────────────────
-        - id: doctor-service
-          predicates:
-            - Path=/v1/doctors,/v1/doctors/{id:\d+}
-          uri: lb://DOCTOR-SERVICE
-          filters:
-            - name: JwtValidation
-
-        # ── Patient service ────────────────────────────────────────────────
-        - id: patient-service
-          predicates:
-            - Path=/v1/patients,/v1/patients/{id:\d+}
-          uri: lb://PATIENT-SERVICE
-          filters:
-            - name: JwtValidation
-
-        # ── Appointment service ────────────────────────────────────────────
-        - id: appointment-service
-          predicates:
-            - Path=/v1/patients/{patient_id:\d+}/appointments,/v1/patients/{patient_id:\d+}/appointments/{id:\d+},/v1/patients/{patient_id:\d+}/appointments/{id:\d+}/cancel
-          uri: lb://APPOINTMENT-SERVICE
-          filters:
-            - name: JwtValidation
