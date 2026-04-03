@@ -19,8 +19,5 @@ function fn() {
 
     config.config = read('classpath:com/pms/integration/features/_config.json')
 
-    let authResult = karate.callSingle('classpath:com/pms/integration/features/Auth.feature', config);
-    config.accessToken = authResult.accessToken;
-
     return config;
 }

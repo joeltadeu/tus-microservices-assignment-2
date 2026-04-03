@@ -1,6 +1,7 @@
 Feature: Doctor - Create, Update, Get by Id, Get All, Delete
   Background:
-    * def authHeader = 'Bearer ' + accessToken
+    * def authResponse = call read('Auth.feature')
+    * def authHeader = 'Bearer ' + authResponse.accessToken
     * def doctor_url = doctorHost + config.uri.doctor
     * def RandomData = Java.type('com.pms.integration.util.RandomData')
 
