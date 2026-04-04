@@ -4,8 +4,8 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 
-import com.pms.performance.payload.DoctorPayloadBuilder;
 import com.pms.performance.config.SimulationConfig;
+import com.pms.performance.payload.DoctorPayloadBuilder;
 import io.gatling.javaapi.core.*;
 
 public final class DoctorChains {
@@ -18,6 +18,7 @@ public final class DoctorChains {
             http("Create doctor")
                 .post(SimulationConfig.getDoctorUrl() + "/v1/doctors")
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer #{authToken}")
                 .body(StringBody("#{doctorPayload}"))
                 .asJson()
                 .check(status().is(201))
@@ -29,6 +30,7 @@ public final class DoctorChains {
   public static ChainBuilder getDoctorById() {
     return exec(http("Get doctor by id")
             .get(SimulationConfig.getDoctorUrl() + "/v1/doctors/#{doctorId}")
+            .header("Authorization", "Bearer #{authToken}")
             .check(status().is(200)))
         .pause(1);
   }
@@ -36,6 +38,7 @@ public final class DoctorChains {
   public static ChainBuilder getAllDoctors() {
     return exec(http("Get all doctors")
             .get(SimulationConfig.getDoctorUrl() + "/v1/doctors")
+            .header("Authorization", "Bearer #{authToken}")
             .check(status().is(200)))
         .pause(1);
   }

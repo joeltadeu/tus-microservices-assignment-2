@@ -18,7 +18,7 @@ class AppointmentPayloadBuilderTest {
 
   @Test
   void shouldBuildValidAppointmentJson() throws Exception {
-    String json = AppointmentPayloadBuilder.build(1L, 2L);
+    String json = AppointmentPayloadBuilder.build(2L);
 
     assertNotNull(json);
     assertFalse(json.isBlank());
@@ -28,25 +28,22 @@ class AppointmentPayloadBuilderTest {
     assertTrue(root.hasNonNull("title"));
     assertTrue(root.hasNonNull("type"));
     assertTrue(root.hasNonNull("startTime"));
-    assertTrue(root.hasNonNull("patientId"));
     assertTrue(root.hasNonNull("doctorId"));
     assertTrue(root.hasNonNull("description"));
   }
 
   @Test
   void shouldContainCorrectPatientAndDoctorIds() throws Exception {
-    long patientId = 100L;
     long doctorId = 200L;
 
-    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(patientId, doctorId));
+    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(doctorId));
 
-    assertEquals(patientId, root.get("patientId").asLong());
     assertEquals(doctorId, root.get("doctorId").asLong());
   }
 
   @Test
   void shouldHaveValidIsoLocalDateTimeStartTime() throws Exception {
-    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(1L, 2L));
+    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(2L));
     String startTime = root.get("startTime").asText();
 
     assertNotNull(startTime);
@@ -75,7 +72,7 @@ class AppointmentPayloadBuilderTest {
             "Follow-up consultation to assess recovery progress after recent surgery.",
             "Patient requests a general orthopedic evaluation due to ongoing joint discomfort.");
 
-    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(1L, 2L));
+    JsonNode root = OBJECT_MAPPER.readTree(AppointmentPayloadBuilder.build(2L));
 
     String title = root.get("title").asText();
     String description = root.get("description").asText();
@@ -86,8 +83,8 @@ class AppointmentPayloadBuilderTest {
 
   @Test
   void shouldGenerateDifferentPayloadsOnMultipleCalls() {
-    String json1 = AppointmentPayloadBuilder.build(1L, 2L);
-    String json2 = AppointmentPayloadBuilder.build(1L, 2L);
+    String json1 = AppointmentPayloadBuilder.build(2L);
+    String json2 = AppointmentPayloadBuilder.build(2L);
 
     assertNotEquals(
         json1, json2, "Two builds should not produce identical JSON due to randomization");

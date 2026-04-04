@@ -14,17 +14,17 @@ public final class AppointmentChains {
 
   public static ChainBuilder createAppointment() {
     return exec(session -> {
-          long patientId = session.getLong("patientId");
           long doctorId = session.getLong("doctorId");
-
-          String payload = AppointmentPayloadBuilder.build(patientId, doctorId);
-
+          String payload = AppointmentPayloadBuilder.build(doctorId);
           return session.set("appointmentPayload", payload);
         })
         .exec(
             http("Create appointment")
-                .post(SimulationConfig.getAppointmentUrl() + "/v1/appointments")
+                // Appointment endpoint requires patientId in the path
+                .post(
+                    SimulationConfig.getAppointmentUrl() + "/v1/patients/#{patientId}/appointments")
                 .header("Content-Type", "application/json")
+                .header("Authorization", "Bearer #{authToken}")
                 .body(StringBody("#{appointmentPayload}"))
                 .asJson()
                 .check(status().is(201))
@@ -35,7 +35,10 @@ public final class AppointmentChains {
 
   public static ChainBuilder getAppointmentById() {
     return exec(http("Get appointment by id")
-            .get(SimulationConfig.getAppointmentUrl() + "/v1/appointments/#{appointmentId}")
+            .get(
+                SimulationConfig.getAppointmentUrl()
+                    + "/v1/patients/#{patientId}/appointments/#{appointmentId}")
+            .header("Authorization", "Bearer #{authToken}")
             .check(status().is(200)))
         .pause(1);
   }

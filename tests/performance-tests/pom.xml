@@ -3,13 +3,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-     <parent>
+    <parent>
         <groupId>com.pms</groupId>
         <artifactId>pms</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>tests-performance-pms</artifactId>
+    <artifactId>performance-tests</artifactId>
     <packaging>jar</packaging>
     <name>tests-performance-pms</name>
     <description>Performance tests using Gatling</description>
@@ -17,7 +17,7 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gatling.version>3.13.5</gatling.version>
+        <gatling.version>3.15.0</gatling.version>
         <gatling-maven-plugin.version>4.12.2</gatling-maven-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>

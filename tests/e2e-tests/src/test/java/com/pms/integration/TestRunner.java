@@ -1,9 +1,9 @@
 package com.pms.integration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.intuit.karate.Results;
-import com.intuit.karate.Runner;
+import io.karatelabs.core.Runner;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -16,13 +16,14 @@ public class TestRunner {
   public void testParallel() {
     // Run all tests in parallel with 5 threads
     // HTML report is automatically generated in target/karate-reports
-    Results results =
+    var results =
         Runner.path("classpath:com/pms/integration/features")
             .outputCucumberJson(true)
             .outputJunitXml(true)
             .parallel(5);
 
-    // Assert that all tests passed
-    assertEquals(0, results.getFailCount(), results.getErrorMessages());
+    assertThat(results.getFailedFeatures()).isEmpty();
+    assertThat(results.getErrors()).isEmpty();
+    assertEquals(0, results.getScenarioFailedCount());
   }
 }

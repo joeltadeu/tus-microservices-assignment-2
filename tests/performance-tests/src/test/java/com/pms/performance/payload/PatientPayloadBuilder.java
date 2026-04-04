@@ -7,8 +7,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class PatientPayloadBuilder {
+
   private static final Faker faker = new Faker();
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  private static final String INITIAL_PASSWORD = "Patient@1234!";
 
   public static String build() {
     String firstName = randomFirstName();
@@ -22,8 +24,9 @@ public class PatientPayloadBuilder {
             + "\"lastName\": \"%s\", "
             + "\"email\": \"%s\", "
             + "\"address\": \"%s\", "
-            + "\"dateOfBirth\": \"%s\" }",
-        firstName, lastName, email, address, dateOfBirth);
+            + "\"dateOfBirth\": \"%s\", "
+            + "\"initialPassword\": \"%s\" }",
+        firstName, lastName, email, address, dateOfBirth, INITIAL_PASSWORD);
   }
 
   private static String randomFirstName() {
@@ -35,18 +38,17 @@ public class PatientPayloadBuilder {
   }
 
   private static String buildEmail(String firstName, String lastName) {
-    return (firstName + "." + lastName + "@example.com").toLowerCase();
+    return (firstName + "." + lastName + "." + faker.number().digits(4) + "@example.com")
+        .toLowerCase();
   }
 
   private static String randomDateOfBirth() {
     Date birthday = faker.date().birthday(0, 90);
-
     LocalDate localDate = birthday.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
     return localDate.format(DATE_FORMATTER);
   }
 
   private static String randomAddress() {
-    return faker.address().fullAddress();
+    return faker.address().fullAddress().replace("\"", "'");
   }
 }

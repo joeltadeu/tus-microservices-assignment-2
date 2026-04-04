@@ -10,12 +10,15 @@ public class SimulationConfig {
 
   private static final Properties FILE_PROPS = loadProperties();
 
-  @Getter private static final String patientUrl = get("patientUrl", "http://localhost:9081");
+  // All service URLs default to the API Gateway on port 9094
+  @Getter private static final String authUrl = get("authUrl", "http://localhost:9094");
 
-  @Getter private static final String doctorUrl = get("doctorUrl", "http://localhost:9082");
+  @Getter private static final String patientUrl = get("patientUrl", "http://localhost:9094");
+
+  @Getter private static final String doctorUrl = get("doctorUrl", "http://localhost:9094");
 
   @Getter
-  private static final String appointmentUrl = get("appointmentUrl", "http://localhost:9083");
+  private static final String appointmentUrl = get("appointmentUrl", "http://localhost:9094");
 
   @Getter private static final int users = Integer.parseInt(get("users", "100"));
 

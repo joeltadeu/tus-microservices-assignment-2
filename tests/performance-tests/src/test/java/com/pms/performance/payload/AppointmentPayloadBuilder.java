@@ -32,7 +32,7 @@ public class AppointmentPayloadBuilder {
               "General Orthopedic Consultation",
               "Patient requests a general orthopedic evaluation due to ongoing joint discomfort."));
 
-  public static String build(long patientId, long doctorId) {
+  public static String build(long doctorId) {
     AppointmentTemplate template = randomTemplate();
     String startTime = randomFutureDateTime();
 
@@ -40,10 +40,9 @@ public class AppointmentPayloadBuilder {
         "{ \"title\": \"%s\", "
             + "\"type\": \"CONSULTATION\", "
             + "\"startTime\": \"%s\", "
-            + "\"patientId\": %d, "
             + "\"doctorId\": %d, "
             + "\"description\": \"%s\" }",
-        template.title(), startTime, patientId, doctorId, template.description());
+        template.title(), startTime, doctorId, template.description());
   }
 
   private static AppointmentTemplate randomTemplate() {

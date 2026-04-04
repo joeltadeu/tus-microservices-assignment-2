@@ -25,6 +25,7 @@ class PatientPayloadBuilderTest {
         assertTrue(root.hasNonNull("email"));
         assertTrue(root.hasNonNull("address"));
         assertTrue(root.hasNonNull("dateOfBirth"));
+        assertTrue(root.hasNonNull("initialPassword"));
     }
 
     @Test
@@ -35,6 +36,7 @@ class PatientPayloadBuilderTest {
         assertFalse(root.get("lastName").asText().isBlank());
         assertFalse(root.get("address").asText().isBlank());
         assertFalse(root.get("dateOfBirth").asText().isBlank());
+        assertFalse(root.get("initialPassword").asText().isBlank());
     }
 
     @Test
@@ -47,8 +49,8 @@ class PatientPayloadBuilderTest {
         assertTrue(email.endsWith("@example.com"));
         assertEquals(email.toLowerCase(), email);
 
-        // basic structure check: firstname.lastname@example.com
-        assertTrue(email.matches("^[a-z]+\\.[a-z]+@example\\.com$"));
+    // basic structure check: firstname.lastname@example.com
+    assertTrue(email.matches("^[a-z]+\\.[a-z]+\\.[0-9]+@example\\.com$"));
     }
 
     @Test
