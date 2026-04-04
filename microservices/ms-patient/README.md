@@ -187,7 +187,7 @@ FROM gcr.io/distroless/java21-debian13
 
 ADD target/patient-service.jar patient-service.jar
 
-EXPOSE 9081
+EXPOSE 8081
 
 ENTRYPOINT ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "/patient-service.jar"]
 ```
@@ -202,7 +202,7 @@ docker run -e SPRING_PROFILES_ACTIVE=local -p 9081:9081 patient-service
 ## 🛠️ Stack
 
 - Java 21
-- Spring Boot 3.5.9
+- Spring Boot 4.0.4
 - Spring Data JPA
 - Spring Cloud OpenFeign
 - OpenAPI 3.1.0
