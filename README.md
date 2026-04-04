@@ -1,5 +1,6 @@
 ![Java](https://img.shields.io/badge/Java-21-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.x-brightgreen)
+![Spring Cloud Config](https://img.shields.io/badge/Spring%20Cloud%20Config-2025.1.1-blue)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 # Patient Management System (PMS)
@@ -46,7 +47,7 @@ This section presents the **high-level architecture** of the system.
 - Language: Java 21
 - Framework: Spring Boot 4.x
 - Data: Spring Data JPA, MariaDB, Flyway
-- Cloud: Spring Cloud OpenFeign, Spring Cloud Gateway, Netflix Eureka
+- Cloud: Spring Cloud OpenFeign, Spring Cloud Gateway, Netflix Eureka, **Spring Cloud Config**
 - Security: Spring Security, JWT (JSON Web Tokens)
 - Resilience: Resilience4j (Circuit Breaker, Retry)
 - API Documentation: OpenAPI (Swagger)
@@ -166,6 +167,53 @@ management:
 Access the Eureka dashboard at: **http://localhost:8761**
 
 ![Alt text](__assets/images/eureka.png?raw=true "Eureka Serice Discovery")
+
+---
+
+### ⚙️ Config Server (`infra-config-server`)
+
+The Config Server is the **centralised configuration hub** for all microservices. It serves YAML configuration files from a Git repository, giving every service a single auditable source of truth for its settings — independent of the application's own source code.
+
+- Runs on port **8888**
+- Registers with Eureka as `config-server`
+- Exposes configuration at: `http://localhost:8888/{service}/{profile}`
+- Accessible through the gateway at: `http://localhost:9094/config/{service}/{profile}`
+
+#### How it works
+
+At startup each microservice contacts the Config Server (before the application context is fully refreshed) and downloads configuration for its `spring.application.name` + active profile. The downloaded properties are merged with the service's own `application.yml`, with the Config Server values taking the highest precedence.
+
+```
+Service startup
+  └─► contacts Config Server (http://config-server:8888)
+        └─► fetches {service}/application.yml
+        └─► fetches {service}/application-{profile}.yml
+              └─► values merged into service's Environment
+```
+
+#### Configuration
+
+```yaml
+spring:
+  config:
+    import: "optional:configserver:http://localhost:8888"
+```
+
+The `optional:` prefix means the service **starts normally** if the Config Server is temporarily unreachable — it falls back to its local `application.yml`. Remove `optional:` to make the Config Server a hard dependency (the service refuses to start if it cannot reach the server).
+
+#### Live refresh (without restart)
+
+To apply a configuration change after pushing to the Git repository:
+
+```bash
+# Refresh a single service
+curl -X POST http://localhost:8083/actuator/refresh
+
+# Or through the gateway
+curl -X POST http://localhost:9094/config/actuator/refresh
+```
+
+Beans annotated with `@RefreshScope` or `@ConfigurationProperties` (like `AppointmentProperties`) will pick up the new values immediately.
 
 ---
 
@@ -387,6 +435,58 @@ Access Prometheus at **http://localhost:9090**
 
 ---
 
+## ⚙️ Externalised Configuration — Appointment Duration
+
+The `AppointmentService` uses a configurable duration value (in minutes) for calculating `endTime` and `duration` on every appointment. This value is no longer hardcoded — it is read from the Config Server at startup and can be changed live without redeploying.
+
+### Configuration property
+
+In the config repository at `appointment-service/application.yml`:
+
+```yaml
+pms:
+  appointment:
+    duration-minutes: 60   # change to 30, 45, 90, etc.
+```
+
+### How it works in code
+
+`AppointmentProperties` is a `@ConfigurationProperties` bean bound to the `pms.appointment` prefix:
+
+```java
+@Component
+@ConfigurationProperties(prefix = "pms.appointment")
+public class AppointmentProperties {
+    private int durationMinutes = 60;   // safe default if config server is unreachable
+    // getters / setters
+}
+```
+
+`AppointmentService` injects this bean and uses the value in both `insert()` and `update()`:
+
+```java
+int durationMinutes = appointmentProperties.getDurationMinutes();
+
+appointment.setDuration(durationMinutes);
+appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
+```
+
+### Changing the duration at runtime
+
+```bash
+# 1. Edit appointment-service/application.yml in the config repository
+#    (change duration-minutes to the desired value, e.g. 30)
+
+# 2. Commit and push
+git commit -am "chore: set appointment duration to 30 minutes"
+git push
+
+# 3. Trigger a live refresh — no restart required
+curl -X POST http://localhost:8083/actuator/refresh
+```
+
+---
+
 ## 🛡️ Resilience
 
 The Appointment Service communicates synchronously with both the Doctor Service and the Patient Service via Feign clients. To prevent cascading failures when a downstream service is slow or unavailable, the system uses **Resilience4j** for circuit breaking and automatic retries.
@@ -588,6 +688,10 @@ The `docker-compose.yml` at the root of the project defines and orchestrates the
 Commands:
 
 ```bash
+# 1. Copy and configure environment variables (including CONFIG_GIT_URI)
+cp .env.example .env
+# Edit .env — set JWT_SECRET and CONFIG_GIT_URI
+
 # Start all services
 docker compose -f docker-compose.yml up -d
 

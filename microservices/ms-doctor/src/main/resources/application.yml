@@ -1,6 +1,8 @@
 spring:
   application:
     name: doctor-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
   datasource:
     hikari:
       pool-name: pms-doctor-pool

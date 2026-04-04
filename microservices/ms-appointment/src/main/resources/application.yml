@@ -1,6 +1,8 @@
 spring:
   application:
     name: appointment-service
+  config:
+    import: "optional:configserver:http://localhost:8888"
   datasource:
     hikari:
       pool-name: pms-appointment-pool
@@ -110,3 +112,5 @@ resilience4j:
 pms:
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-512-bit-secret-in-production}
+  appointment:
+    duration-minutes: 60

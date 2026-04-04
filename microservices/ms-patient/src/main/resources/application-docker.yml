@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: "optional:configserver:http://config-server:8888"
   datasource:
     url: jdbc:mariadb://pms-mariadb:3306/pms-patient?useSSL=false&useTimezone=true&serverTimezone=UTC
     username: root

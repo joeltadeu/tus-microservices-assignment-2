@@ -38,6 +38,7 @@
         <module>microservices/ms-doctor</module>
         <module>microservices/ms-patient</module>
         <module>microservices/ms-appointment</module>
+        <module>infra/infra-config-server</module>
         <module>infra/infra-api-gateway</module>
         <module>infra/infra-discovery-service</module>
         <module>tests/e2e-tests</module>
@@ -45,6 +46,10 @@
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>

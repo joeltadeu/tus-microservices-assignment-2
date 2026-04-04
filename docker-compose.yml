@@ -43,6 +43,31 @@ services:
     networks:
       - pms-network
 
+  # ── Config Server ───────────────────────────────────────────────────────────
+
+  config-server:
+    image: pms/config-server
+    container_name: config-server
+    build:
+      context: ./infra/infra-config-server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    depends_on:
+      discovery:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - CONFIG_GIT_URI=${CONFIG_GIT_URI}
+      - CONFIG_GIT_BRANCH=${CONFIG_GIT_BRANCH:-main}
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - pms-network
+
   # ── API Gateway ─────────────────────────────────────────────────────────────
 
   gateway:
@@ -55,6 +80,8 @@ services:
       - "9094:9094"
     depends_on:
       discovery:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
       auth:
         condition: service_started
@@ -79,6 +106,8 @@ services:
         condition: service_healthy
       discovery:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
@@ -97,6 +126,8 @@ services:
       pms-mariadb:
         condition: service_healthy
       discovery:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=docker
@@ -117,6 +148,8 @@ services:
         condition: service_healthy
       discovery:
         condition: service_healthy
+      config-server:
+        condition: service_healthy
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-512-bit-secret-in-production}
@@ -135,6 +168,8 @@ services:
       pms-mariadb:
         condition: service_healthy
       discovery:
+        condition: service_healthy
+      config-server:
         condition: service_healthy
       doctor:
         condition: service_started

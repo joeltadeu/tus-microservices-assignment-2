@@ -20,6 +20,15 @@ public class RouterConfig {
     this.jwtFilter = jwtFilter;
   }
 
+  // ── Config Server — actuator access only (no JWT — infra/internal use) ────
+  @Bean
+  public RouterFunction<ServerResponse> configServerRoutes() {
+    return route("config-server")
+        .route(RequestPredicates.path("/config/**"), http())
+        .filter(lb("CONFIG-SERVER"))
+        .build();
+  }
+
   // ── Auth service — public (no JWT required) ──────────────────────────────
   @Bean
   public RouterFunction<ServerResponse> authPublicRoutes() {

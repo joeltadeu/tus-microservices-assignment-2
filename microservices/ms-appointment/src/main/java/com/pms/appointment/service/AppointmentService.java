@@ -40,6 +40,7 @@ public class AppointmentService {
   private final AppointmentMapper mapper;
   private final DoctorClient doctorClient;
   private final PatientClient patientClient;
+  private final AppointmentProperties appointmentProperties;
 
   // ── Enriched reads (soft fallback — degrade gracefully) ───────────────────
 
@@ -106,11 +107,13 @@ public class AppointmentService {
     var doctor = validateDoctor(appointment.getDoctorId());
     var patient = validatePatient(appointment.getPatientId());
 
+    int durationMinutes = appointmentProperties.getDurationMinutes();
+
     appointment.setDoctorId(doctor.getId());
     appointment.setPatientId(patient.getId());
     appointment.setCreatedAt(LocalDateTime.now());
-    appointment.setEndTime(appointment.getStartTime().plusHours(1));
-    appointment.setDuration(60);
+    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
+    appointment.setDuration(durationMinutes);
     appointment.setStatus(AppointmentStatus.SCHEDULED);
     repository.save(appointment);
 
@@ -121,6 +124,8 @@ public class AppointmentService {
     var doctor = validateDoctor(request.getDoctorId());
     var patient = validatePatient(patientId);
 
+    int durationMinutes = appointmentProperties.getDurationMinutes();
+
     var appointment = findById(id, patientId);
     validateScheduledStatus(appointment, "updated");
 
@@ -129,8 +134,8 @@ public class AppointmentService {
     appointment.setTitle(request.getTitle());
     appointment.setDescription(request.getDescription());
     appointment.setStartTime(request.getStartTime());
-    appointment.setEndTime(appointment.getStartTime().plusHours(1));
-    appointment.setDuration(60);
+    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
+    appointment.setDuration(durationMinutes);
     repository.save(appointment);
 
     return appointment;
