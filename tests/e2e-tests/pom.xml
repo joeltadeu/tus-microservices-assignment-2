@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-    <artifactId>tests-integration-pms</artifactId>
+    <artifactId>e2e-tests</artifactId>
     <packaging>jar</packaging>
     <name>tests-integration-pms</name>
     <description>Integration tests using Karate Framework</description>
@@ -20,7 +20,8 @@
         <maven.compiler.version>3.13.0</maven.compiler.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <karate.version>1.5.2</karate.version>
+        <karate.version>2.0.0</karate.version>
+        <junit-jupiter.version>5.10.1</junit-jupiter.version>
         <javafaker.version>1.0.2</javafaker.version>
         <logback.version>1.5.16</logback.version>
     </properties>
@@ -29,11 +30,16 @@
         <!-- Karate Framework -->
         <dependency>
             <groupId>io.karatelabs</groupId>
-            <artifactId>karate-junit5</artifactId>
+            <artifactId>karate-junit6</artifactId>
             <version>${karate.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
         <!-- Java Faker for Random Test Data -->
         <dependency>
             <groupId>com.github.javafaker</groupId>

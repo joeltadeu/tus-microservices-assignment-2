@@ -40,8 +40,8 @@
         <module>microservices/ms-appointment</module>
         <module>infra/infra-api-gateway</module>
         <module>infra/infra-discovery-service</module>
-        <module>tests/tests-integration-pms</module>
-        <module>tests/tests-performance-pms</module>
+        <module>tests/e2e-tests</module>
+        <module>tests/performance-tests</module>
     </modules>
 
     <dependencies>
