@@ -44,7 +44,7 @@ This section presents the **high-level architecture** of the system.
 ## 🛠️ Technology Stack
 
 - Language: Java 21
-- Framework: Spring Boot 3.x
+- Framework: Spring Boot 4.x
 - Data: Spring Data JPA, MariaDB, Flyway
 - Cloud: Spring Cloud OpenFeign, Spring Cloud Gateway, Netflix Eureka
 - Security: Spring Security, JWT (JSON Web Tokens)
@@ -164,6 +164,8 @@ management:
 ```
 
 Access the Eureka dashboard at: **http://localhost:8761**
+
+![Alt text](__assets/images/eureka.png?raw=true "Eureka Serice Discovery")
 
 ---
 
@@ -332,6 +334,8 @@ With `probability: 1.0` every request is traced. In a high-traffic production en
 
 - Access Zipkin at: **http://localhost:9411**
 - Use the trace ID visible in log output to search for the full distributed trace in the Zipkin UI.
+
+![Alt text](__assets/images/zipkin.png?raw=true "Zipkin Dependencies graph")
 
 ---
 
