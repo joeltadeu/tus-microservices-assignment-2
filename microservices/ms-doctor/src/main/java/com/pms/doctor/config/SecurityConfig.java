@@ -44,7 +44,8 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/actuator/**")
                     .permitAll()
-                    .requestMatchers("/api-docs/**", "/scalar/**")
+                    .requestMatchers(
+                        "/api-docs/**", "/scalar/**", "/swagger-ui/**", "/swagger-ui.html")
                     .permitAll()
 
                     // ── Specific rules first — Spring Security is first-match-wins ──

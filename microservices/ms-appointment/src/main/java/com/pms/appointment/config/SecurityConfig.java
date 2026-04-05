@@ -44,7 +44,8 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/actuator/**")
                     .permitAll()
-                    .requestMatchers("/api-docs/**", "/scalar/**")
+                    .requestMatchers(
+                        "/api-docs/**", "/scalar/**", "/swagger-ui/**", "/swagger-ui.html")
                     .permitAll()
 
                     // Patients list + read their own appointments
