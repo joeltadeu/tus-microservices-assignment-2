@@ -2,6 +2,7 @@ package com.pms.appointment.service;
 
 import com.pms.appointment.client.DoctorClient;
 import com.pms.appointment.client.PatientClient;
+import com.pms.appointment.config.AppointmentProperties;
 import com.pms.appointment.controller.mapper.AppointmentMapper;
 import com.pms.appointment.model.Appointment;
 import com.pms.appointment.repository.AppointmentRepository;

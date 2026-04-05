@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.HandlerMethodValidationException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -89,6 +90,13 @@ public class GlobalExceptionHandler {
 
     err.getAttributes().addAll(errors.values());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
+  }
+
+  @ExceptionHandler(NoResourceFoundException.class)
+  @ResponseBody
+  public ResponseEntity<ExceptionResponse> noResourceFoundException(NoResourceFoundException e) {
+    ExceptionResponse err = new ExceptionResponse(HttpStatus.NOT_FOUND, e.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
   }
 
   @ExceptionHandler(NotFoundException.class)

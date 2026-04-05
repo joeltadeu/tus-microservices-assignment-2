@@ -46,7 +46,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: metrics,info,health,prometheus
+        include: metrics,info,health,prometheus,refresh
   endpoint:
     metrics:
       access: read_only
