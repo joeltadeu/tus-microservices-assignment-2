@@ -39,7 +39,12 @@ public class SecurityConfig {
                     .requestMatchers("/actuator/**")
                     .permitAll()
                     .requestMatchers(
-                        "/api-docs/**", "/scalar/**", "/swagger-ui/**", "/swagger-ui.html")
+                        "/api-docs/**",
+                        "/scalar/**",
+                        "/swagger-ui",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/webjars/**")
                     .permitAll()
                     // User management — requires HEALTHCARE_ADMIN (enforced by @PreAuthorize too)
                     .requestMatchers("/v1/users/**")

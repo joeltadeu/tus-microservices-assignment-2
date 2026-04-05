@@ -67,6 +67,17 @@ management:
         endpoint: http://localhost:9411/api/v2/spans
       enabled: true
 
+springdoc:
+  api-docs:
+    path: /api-docs
+    groups:
+      enabled: true
+  swagger-ui:
+    path: /swagger-ui/index.html
+    operations-sorter: method
+    tags-sorter: alpha
+    disable-swagger-default-url: true
+
 pms:
   jwt:
     secret: ${JWT_SECRET:change-this-to-a-secure-512-bit-secret-in-production}

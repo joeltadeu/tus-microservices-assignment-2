@@ -1,7 +1,7 @@
 package com.jmanagement.apigateway.config;
 
-import static org.springframework.cloud.gateway.server.mvc.filter.LoadBalancerFilterFunctions.lb;
 import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions.rewritePath;
+import static org.springframework.cloud.gateway.server.mvc.filter.LoadBalancerFilterFunctions.lb;
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 
@@ -118,8 +118,11 @@ public class RouterConfig {
   public RouterFunction<ServerResponse> appointmentSwaggerRoutes() {
     return route("appointment-service-swagger")
         .route(
-            RequestPredicates.path("/appointment/swagger-ui/**")
-                .or(RequestPredicates.path("/appointment/api-docs/**")),
+            RequestPredicates.path("/appointment/swagger-ui")
+                .or(RequestPredicates.path("/appointment/swagger-ui/**"))
+                .or(RequestPredicates.path("/appointment/swagger-ui.html"))
+                .or(RequestPredicates.path("/appointment/api-docs/**"))
+                .or(RequestPredicates.path("/appointment/webjars/**")),
             http())
         .before(rewritePath("/appointment/(?<remaining>.*)", "/${remaining}"))
         .filter(lb("APPOINTMENT-SERVICE"))
@@ -130,8 +133,11 @@ public class RouterConfig {
   public RouterFunction<ServerResponse> doctorSwaggerRoutes() {
     return route("doctor-service-swagger")
         .route(
-            RequestPredicates.path("/doctor/swagger-ui/**")
-                .or(RequestPredicates.path("/doctor/api-docs/**")),
+            RequestPredicates.path("/doctor/swagger-ui")
+                .or(RequestPredicates.path("/doctor/swagger-ui/**"))
+                .or(RequestPredicates.path("/doctor/swagger-ui.html"))
+                .or(RequestPredicates.path("/doctor/api-docs/**"))
+                .or(RequestPredicates.path("/doctor/webjars/**")),
             http())
         .before(rewritePath("/doctor/(?<remaining>.*)", "/${remaining}"))
         .filter(lb("DOCTOR-SERVICE"))
@@ -142,8 +148,11 @@ public class RouterConfig {
   public RouterFunction<ServerResponse> patientSwaggerRoutes() {
     return route("patient-service-swagger")
         .route(
-            RequestPredicates.path("/patient/swagger-ui/**")
-                .or(RequestPredicates.path("/patient/api-docs/**")),
+            RequestPredicates.path("/patient/swagger-ui")
+                .or(RequestPredicates.path("/patient/swagger-ui/**"))
+                .or(RequestPredicates.path("/patient/swagger-ui.html"))
+                .or(RequestPredicates.path("/patient/api-docs/**"))
+                .or(RequestPredicates.path("/patient/webjars/**")),
             http())
         .before(rewritePath("/patient/(?<remaining>.*)", "/${remaining}"))
         .filter(lb("PATIENT-SERVICE"))
@@ -154,8 +163,11 @@ public class RouterConfig {
   public RouterFunction<ServerResponse> authSwaggerRoutes() {
     return route("auth-service-swagger")
         .route(
-            RequestPredicates.path("/auth/swagger-ui/**")
-                .or(RequestPredicates.path("/auth/api-docs/**")),
+            RequestPredicates.path("/auth/swagger-ui")
+                .or(RequestPredicates.path("/auth/swagger-ui/**"))
+                .or(RequestPredicates.path("/auth/swagger-ui.html"))
+                .or(RequestPredicates.path("/auth/api-docs/**"))
+                .or(RequestPredicates.path("/auth/webjars/**")),
             http())
         .before(rewritePath("/auth/(?<remaining>.*)", "/${remaining}"))
         .filter(lb("AUTH-SERVICE"))

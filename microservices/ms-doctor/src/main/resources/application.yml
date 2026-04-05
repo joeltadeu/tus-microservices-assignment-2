@@ -29,9 +29,9 @@ springdoc:
     groups:
       enabled: true
   swagger-ui:
-    path: /swagger-ui.html
-    operationsSorter: method
-    tagsSorter: alpha
+    path: /swagger-ui/index.html
+    operations-sorter: method
+    tags-sorter: alpha
     disable-swagger-default-url: true
 
 server:
