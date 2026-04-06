@@ -1,14 +1,11 @@
 package com.pms.appointment.service;
 
-import com.pms.appointment.client.DoctorClient;
-import com.pms.appointment.client.PatientClient;
-import com.pms.appointment.config.AppointmentProperties;
+import com.pms.appointment.client.ResilienceClient;
 import com.pms.appointment.controller.mapper.AppointmentMapper;
 import com.pms.appointment.model.Appointment;
 import com.pms.appointment.repository.AppointmentRepository;
 import com.pms.exception.ConflictException;
 import com.pms.exception.NotFoundException;
-import com.pms.exception.ServiceUnavailableException;
 import com.pms.models.dto.appointment.AppointmentFilter;
 import com.pms.models.dto.appointment.AppointmentRequest;
 import com.pms.models.dto.appointment.AppointmentResponse;
@@ -16,8 +13,6 @@ import com.pms.models.dto.appointment.AppointmentStatus;
 import com.pms.models.dto.appointment.CancelAppointmentRequest;
 import com.pms.models.dto.doctor.DoctorResponse;
 import com.pms.models.dto.patient.PatientResponse;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
@@ -34,21 +29,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppointmentService {
 
-  private static final String DOCTOR_CB = "doctorClient";
-  private static final String PATIENT_CB = "patientClient";
-
   private final AppointmentRepository repository;
   private final AppointmentMapper mapper;
-  private final DoctorClient doctorClient;
-  private final PatientClient patientClient;
-  private final AppointmentProperties appointmentProperties;
+  private final ResilienceClient resilienceClient; // replaces direct DoctorClient/PatientClient
 
   // ── Enriched reads (soft fallback — degrade gracefully) ───────────────────
 
   public AppointmentResponse findByIdEnriched(Long patientId, Long id) {
     var appointment = findById(id, patientId);
-    DoctorResponse doctor = fetchDoctor(appointment.getDoctorId());
-    PatientResponse patient = fetchPatient(appointment.getPatientId());
+    DoctorResponse doctor = resilienceClient.fetchDoctor(appointment.getDoctorId());
+    PatientResponse patient = resilienceClient.fetchPatient(appointment.getPatientId());
     return mapper.toAppointmentResponse(appointment, doctor, patient);
   }
 
@@ -58,12 +48,14 @@ public class AppointmentService {
     Set<Long> doctorIds = page.stream().map(Appointment::getDoctorId).collect(Collectors.toSet());
 
     Map<Long, DoctorResponse> doctorCache =
-        doctorIds.stream().collect(Collectors.toMap(Function.identity(), this::fetchDoctor));
+        doctorIds.stream()
+            .collect(Collectors.toMap(Function.identity(), resilienceClient::fetchDoctor));
 
     Set<Long> patientIds = page.stream().map(Appointment::getPatientId).collect(Collectors.toSet());
 
     Map<Long, PatientResponse> patientCache =
-        patientIds.stream().collect(Collectors.toMap(Function.identity(), this::fetchPatient));
+        patientIds.stream()
+            .collect(Collectors.toMap(Function.identity(), resilienceClient::fetchPatient));
 
     var enrichedContent =
         page.stream()
@@ -84,9 +76,10 @@ public class AppointmentService {
     Set<Long> doctorIds = page.stream().map(Appointment::getDoctorId).collect(Collectors.toSet());
 
     Map<Long, DoctorResponse> doctorCache =
-        doctorIds.stream().collect(Collectors.toMap(Function.identity(), this::fetchDoctor));
+        doctorIds.stream()
+            .collect(Collectors.toMap(Function.identity(), resilienceClient::fetchDoctor));
 
-    PatientResponse patientResponse = fetchPatient(patientId);
+    PatientResponse patientResponse = resilienceClient.fetchPatient(patientId);
 
     var enrichedContent =
         page.stream()
@@ -105,16 +98,14 @@ public class AppointmentService {
     // Both must succeed — a write with an unverified reference is data corruption.
     // validateDoctor/validatePatient retry then throw ServiceUnavailableException
     // if the downstream is still unreachable, which maps to HTTP 503.
-    var doctor = validateDoctor(appointment.getDoctorId());
-    var patient = validatePatient(appointment.getPatientId());
-
-    int durationMinutes = appointmentProperties.getDurationMinutes();
+    var doctor = resilienceClient.validateDoctor(appointment.getDoctorId());
+    var patient = resilienceClient.validatePatient(appointment.getPatientId());
 
     appointment.setDoctorId(doctor.getId());
     appointment.setPatientId(patient.getId());
     appointment.setCreatedAt(LocalDateTime.now());
-    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
-    appointment.setDuration(durationMinutes);
+    appointment.setEndTime(appointment.getStartTime().plusHours(1));
+    appointment.setDuration(60);
     appointment.setStatus(AppointmentStatus.SCHEDULED);
     repository.save(appointment);
 
@@ -122,10 +113,8 @@ public class AppointmentService {
   }
 
   public Appointment update(Long id, Long patientId, AppointmentRequest request) {
-    var doctor = validateDoctor(request.getDoctorId());
-    var patient = validatePatient(patientId);
-
-    int durationMinutes = appointmentProperties.getDurationMinutes();
+    var doctor = resilienceClient.validateDoctor(request.getDoctorId());
+    var patient = resilienceClient.validatePatient(patientId);
 
     var appointment = findById(id, patientId);
     validateScheduledStatus(appointment, "updated");
@@ -135,87 +124,11 @@ public class AppointmentService {
     appointment.setTitle(request.getTitle());
     appointment.setDescription(request.getDescription());
     appointment.setStartTime(request.getStartTime());
-    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
-    appointment.setDuration(durationMinutes);
+    appointment.setEndTime(appointment.getStartTime().plusHours(1));
+    appointment.setDuration(60);
     repository.save(appointment);
 
     return appointment;
-  }
-
-  // ── Remote calls: soft — used by reads, fallback returns id-only ──────────
-
-  @Retry(name = DOCTOR_CB, fallbackMethod = "fetchDoctorFallback")
-  @CircuitBreaker(name = DOCTOR_CB, fallbackMethod = "fetchDoctorFallback")
-  public DoctorResponse fetchDoctor(Long doctorId) {
-    log.debug("Fetching doctor id={}", doctorId);
-    return doctorClient.findById(doctorId);
-  }
-
-  @Retry(name = PATIENT_CB, fallbackMethod = "fetchPatientFallback")
-  @CircuitBreaker(name = PATIENT_CB, fallbackMethod = "fetchPatientFallback")
-  public PatientResponse fetchPatient(Long patientId) {
-    log.debug("Fetching patient id={}", patientId);
-    return patientClient.findById(patientId);
-  }
-
-  // ── Remote calls: hard — used by writes, fallback throws 503 ─────────────
-
-  @Retry(name = DOCTOR_CB, fallbackMethod = "validateDoctorFallback")
-  @CircuitBreaker(name = DOCTOR_CB, fallbackMethod = "validateDoctorFallback")
-  public DoctorResponse validateDoctor(Long doctorId) {
-    log.debug("Validating doctor id={}", doctorId);
-    return doctorClient.findById(doctorId);
-  }
-
-  @Retry(name = PATIENT_CB, fallbackMethod = "validatePatientFallback")
-  @CircuitBreaker(name = PATIENT_CB, fallbackMethod = "validatePatientFallback")
-  public PatientResponse validatePatient(Long patientId) {
-    log.debug("Validating patient id={}", patientId);
-    return patientClient.findById(patientId);
-  }
-
-  // ── Soft fallbacks (reads) ────────────────────────────────────────────────
-
-  public DoctorResponse fetchDoctorFallback(Long doctorId, Throwable ex) {
-    log.warn(
-        "Doctor service unavailable for doctorId={}. Falling back to id-only. Cause: {}",
-        doctorId,
-        ex.getMessage());
-    var fallback = new DoctorResponse();
-    fallback.setId(doctorId);
-    return fallback;
-  }
-
-  public PatientResponse fetchPatientFallback(Long patientId, Throwable ex) {
-    log.warn(
-        "Patient service unavailable for patientId={}. Falling back to id-only. Cause: {}",
-        patientId,
-        ex.getMessage());
-    var fallback = new PatientResponse();
-    fallback.setId(patientId);
-    return fallback;
-  }
-
-  // ── Hard fallbacks (writes) ───────────────────────────────────────────────
-
-  public DoctorResponse validateDoctorFallback(Long doctorId, Throwable ex) {
-    log.error(
-        "Doctor service unavailable for doctorId={}. Blocking write. Cause: {}",
-        doctorId,
-        ex.getMessage());
-    throw new ServiceUnavailableException(
-        "Doctor service is currently unavailable. Cannot validate doctor id %d. Please try again later."
-            .formatted(doctorId));
-  }
-
-  public PatientResponse validatePatientFallback(Long patientId, Throwable ex) {
-    log.error(
-        "Patient service unavailable for patientId={}. Blocking write. Cause: {}",
-        patientId,
-        ex.getMessage());
-    throw new ServiceUnavailableException(
-        "Patient service is currently unavailable. Cannot validate patient id %d. Please try again later."
-            .formatted(patientId));
   }
 
   // ── Standard CRUD ─────────────────────────────────────────────────────────
