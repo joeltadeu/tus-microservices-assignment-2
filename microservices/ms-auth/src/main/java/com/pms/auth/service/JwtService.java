@@ -1,5 +1,6 @@
 package com.pms.auth.service;
 
+import com.pms.auth.model.Role;
 import com.pms.auth.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -37,7 +38,7 @@ public class JwtService {
    */
   public String generateAccessToken(User user) {
     List<String> roles =
-        user.getRoles().stream().map(r -> r.getName()).collect(Collectors.toList());
+        user.getRoles().stream().map(Role::getName).collect(Collectors.toList());
 
     return Jwts.builder()
         .subject(String.valueOf(user.getId()))
