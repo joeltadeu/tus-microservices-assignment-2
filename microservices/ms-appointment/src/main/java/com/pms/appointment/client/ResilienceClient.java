@@ -9,14 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-/**
- * Wraps all downstream Feign calls with Resilience4j @Retry and @CircuitBreaker.
- *
- * <p>These annotations rely on Spring AOP proxies. Placing them inside AppointmentService and
- * calling them from within the same bean bypasses the proxy (self-invocation), meaning the
- * annotations are silently ignored. By extracting the resilient calls into a separate @Component,
- * every call goes through the proxy and the decorators are applied correctly.
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -35,6 +27,18 @@ public class ResilienceClient {
   public DoctorResponse fetchDoctor(Long doctorId) {
     log.debug("Fetching doctor id={}", doctorId);
     return doctorClient.findById(doctorId);
+  }
+
+  // ── Soft fallbacks (reads) ────────────────────────────────────────────────
+
+  public DoctorResponse fetchDoctorFallback(Long doctorId, Throwable ex) {
+    log.warn(
+            "Doctor service unavailable for doctorId={}. Falling back to id-only. Cause: {}",
+            doctorId,
+            ex.getMessage());
+    var fallback = new DoctorResponse();
+    fallback.setId(doctorId);
+    return fallback;
   }
 
   @Retry(name = PATIENT_CB, fallbackMethod = "fetchPatientFallback")
@@ -60,17 +64,7 @@ public class ResilienceClient {
     return patientClient.findById(patientId);
   }
 
-  // ── Soft fallbacks (reads) ────────────────────────────────────────────────
 
-  public DoctorResponse fetchDoctorFallback(Long doctorId, Throwable ex) {
-    log.warn(
-        "Doctor service unavailable for doctorId={}. Falling back to id-only. Cause: {}",
-        doctorId,
-        ex.getMessage());
-    var fallback = new DoctorResponse();
-    fallback.setId(doctorId);
-    return fallback;
-  }
 
   public PatientResponse fetchPatientFallback(Long patientId, Throwable ex) {
     log.warn(

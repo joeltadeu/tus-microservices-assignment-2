@@ -1,6 +1,7 @@
 package com.pms.appointment.service;
 
 import com.pms.appointment.client.ResilienceClient;
+import com.pms.appointment.config.AppointmentProperties;
 import com.pms.appointment.controller.mapper.AppointmentMapper;
 import com.pms.appointment.model.Appointment;
 import com.pms.appointment.repository.AppointmentRepository;
@@ -31,7 +32,8 @@ public class AppointmentService {
 
   private final AppointmentRepository repository;
   private final AppointmentMapper mapper;
-  private final ResilienceClient resilienceClient; // replaces direct DoctorClient/PatientClient
+  private final ResilienceClient resilienceClient;
+  private final AppointmentProperties appointmentProperties;
 
   // ── Enriched reads (soft fallback — degrade gracefully) ───────────────────
 
@@ -101,11 +103,13 @@ public class AppointmentService {
     var doctor = resilienceClient.validateDoctor(appointment.getDoctorId());
     var patient = resilienceClient.validatePatient(appointment.getPatientId());
 
+    int durationMinutes = appointmentProperties.getDurationMinutes();
+
     appointment.setDoctorId(doctor.getId());
     appointment.setPatientId(patient.getId());
     appointment.setCreatedAt(LocalDateTime.now());
-    appointment.setEndTime(appointment.getStartTime().plusHours(1));
-    appointment.setDuration(60);
+    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
+    appointment.setDuration(durationMinutes);
     appointment.setStatus(AppointmentStatus.SCHEDULED);
     repository.save(appointment);
 
@@ -116,6 +120,8 @@ public class AppointmentService {
     var doctor = resilienceClient.validateDoctor(request.getDoctorId());
     var patient = resilienceClient.validatePatient(patientId);
 
+    int durationMinutes = appointmentProperties.getDurationMinutes();
+
     var appointment = findById(id, patientId);
     validateScheduledStatus(appointment, "updated");
 
@@ -124,8 +130,8 @@ public class AppointmentService {
     appointment.setTitle(request.getTitle());
     appointment.setDescription(request.getDescription());
     appointment.setStartTime(request.getStartTime());
-    appointment.setEndTime(appointment.getStartTime().plusHours(1));
-    appointment.setDuration(60);
+    appointment.setEndTime(appointment.getStartTime().plusMinutes(durationMinutes));
+    appointment.setDuration(durationMinutes);
     repository.save(appointment);
 
     return appointment;
