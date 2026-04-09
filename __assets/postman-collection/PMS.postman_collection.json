@@ -152,12 +152,11 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{doctor-url}}/actuator/health",
+                  "raw": "{{doctor-actuator-url}}/health",
                   "host": [
-                    "{{doctor-url}}"
+                    "{{doctor-actuator-url}}"
                   ],
                   "path": [
-                    "actuator",
                     "health"
                   ]
                 }
@@ -170,12 +169,11 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{doctor-url}}/actuator/metrics",
+                  "raw": "{{doctor-actuator-url}}/metrics",
                   "host": [
-                    "{{doctor-url}}"
+                    "{{doctor-actuator-url}}"
                   ],
                   "path": [
-                    "actuator",
                     "metrics"
                   ]
                 }
@@ -188,12 +186,11 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{doctor-url}}/actuator/prometheus",
+                  "raw": "{{doctor-actuator-url}}/prometheus",
                   "host": [
-                    "{{doctor-url}}"
+                    "{{doctor-actuator-url}}"
                   ],
                   "path": [
-                    "actuator",
                     "prometheus"
                   ]
                 }
@@ -206,13 +203,29 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{doctor-url}}/actuator/info",
+                  "raw": "{{doctor-actuator-url}}/info",
                   "host": [
-                    "{{doctor-url}}"
+                    "{{doctor-actuator-url}}"
                   ],
                   "path": [
-                    "actuator",
                     "info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "refresh config",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{doctor-actuator-url}}/refresh",
+                  "host": [
+                    "{{doctor-actuator-url}}"
+                  ],
+                  "path": [
+                    "refresh"
                   ]
                 }
               },
@@ -452,6 +465,96 @@
     {
       "name": "patient",
       "item": [
+        {
+          "name": "management",
+          "item": [
+            {
+              "name": "actuator health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{patient-actuator-url}}/health",
+                  "host": [
+                    "{{patient-actuator-url}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator metrics",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{patient-actuator-url}}/metrics",
+                  "host": [
+                    "{{patient-actuator-url}}"
+                  ],
+                  "path": [
+                    "metrics"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator prometheus",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{patient-actuator-url}}/prometheus",
+                  "host": [
+                    "{{patient-actuator-url}}"
+                  ],
+                  "path": [
+                    "prometheus"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator info",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{patient-actuator-url}}/info",
+                  "host": [
+                    "{{patient-actuator-url}}"
+                  ],
+                  "path": [
+                    "info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "refresh config",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{patient-actuator-url}}/refresh",
+                  "host": [
+                    "{{patient-actuator-url}}"
+                  ],
+                  "path": [
+                    "refresh"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
         {
           "name": "create",
           "event": [
@@ -732,6 +835,96 @@
     {
       "name": "appointment",
       "item": [
+        {
+          "name": "management",
+          "item": [
+            {
+              "name": "actuator health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{appointment-actuator-url}}/health",
+                  "host": [
+                    "{{appointment-actuator-url}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator metrics",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{appointment-actuator-url}}/metrics",
+                  "host": [
+                    "{{appointment-actuator-url}}"
+                  ],
+                  "path": [
+                    "metrics"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator prometheus",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{appointment-actuator-url}}/prometheus",
+                  "host": [
+                    "{{appointment-actuator-url}}"
+                  ],
+                  "path": [
+                    "prometheus"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "actuator info",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{appointment-actuator-url}}/info",
+                  "host": [
+                    "{{appointment-actuator-url}}"
+                  ],
+                  "path": [
+                    "info"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "refresh config",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{appointment-actuator-url}}/refresh",
+                  "host": [
+                    "{{appointment-actuator-url}}"
+                  ],
+                  "path": [
+                    "refresh"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
         {
           "name": "create",
           "event": [
